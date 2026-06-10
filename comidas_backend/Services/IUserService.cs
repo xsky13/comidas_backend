@@ -1,0 +1,9 @@
+using comidas_backend.Models.Dto.Entity;
+using comidas_backend.Utils;
+
+namespace comidas_backend.Services;
+
+public interface IUserService
+{
+    Task<Result<string>> LoginUser(string email, string pwd);
+}

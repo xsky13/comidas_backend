@@ -1,3 +1,4 @@
+using comidas_backend.Models.Dto.Request;
 using Microsoft.AspNetCore.Mvc;
 
 namespace comidas_backend.Controllers;
@@ -6,5 +7,10 @@ namespace comidas_backend.Controllers;
 [Route("/api/[controller]")]
 public class UserController: ControllerBase
 {
-    
+    [HttpPost("/login")]
+    public async Task<ActionResult> Login(LoginRequestDto request)
+    {
+        
+        return Ok();
+    }
 }
