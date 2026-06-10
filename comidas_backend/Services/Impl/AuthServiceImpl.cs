@@ -27,7 +27,7 @@ public class AuthServiceImpl(IOptions<AuthOptions> options) : IAuthService
             issuer: options.Value.Issuer,
             audience: options.Value.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddMinutes(options.Value.ExpMinutes),
+            expires: DateTime.UtcNow.AddDays(options.Value.ExpDays),
             notBefore: DateTime.UtcNow,
             signingCredentials: credentials
         );

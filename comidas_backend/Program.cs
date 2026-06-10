@@ -1,5 +1,7 @@
 using System.Text;
 using comidas_backend.Data;
+using comidas_backend.Services;
+using comidas_backend.Services.Impl;
 using comidas_backend.Utils;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -27,13 +29,26 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = Environment.GetEnvironmentVariable("Auth_Issuer") ?? throw new Exception("No hay issuer"),
-        ValidAudience = Environment.GetEnvironmentVariable("Auth_Audience") ?? throw new Exception("No hay audience"),
+        ValidIssuer = Environment.GetEnvironmentVariable("Auth__Issuer") ?? throw new Exception("No hay issuer"),
+        ValidAudience = Environment.GetEnvironmentVariable("Auth__Audience") ?? throw new Exception("No hay audience"),
         IssuerSigningKey =
-            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Auth_Key") ??
+            new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("Auth__Key") ??
                                                             throw new Exception("No hay key")))
     };
+    options.Events.OnMessageReceived = context => {
+
+        if (context.Request.Cookies.ContainsKey("X-Access-Token"))
+        {
+            context.Token = context.Request.Cookies["X-Access-Token"];
+        }
+
+        return Task.CompletedTask;
+    };
 });
+
+
+builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
+builder.Services.AddScoped<IUserService, UserServiceImpl>();
 
 builder.Services.AddAuthorization();
 
