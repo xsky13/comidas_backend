@@ -37,4 +37,11 @@ public class UserController(IUserService userService): ControllerBase
         
         return Ok();
     }
+    [Authorize]
+    [HttpPost("logout")]
+    public async Task<ActionResult> Logout()
+    {
+        Response.Cookies.Delete("X-Access-Token");
+        return Ok();
+    }
 }
