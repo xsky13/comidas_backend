@@ -1,4 +1,5 @@
 using comidas_backend.Data;
+using comidas_backend.Models.Domain;
 using comidas_backend.Models.Dto.Entity;
 using comidas_backend.Utils;
 using Microsoft.EntityFrameworkCore;
@@ -37,7 +38,8 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
             Rol = user.Rol
         });
     }
-        public async Task<Result<string>> RegisterUser(string nombre, string email, string pwd)
+    
+    public async Task<Result<string>> RegisterUser(string nombre, string email, string pwd)
     {
         if (string.IsNullOrWhiteSpace(nombre))
             return Result<string>.Fail("El nombre es obligatorio.", field: "nombre");
@@ -51,12 +53,12 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
         if (await dbContext.Users.AnyAsync(user => user.Email == email))
             return Result<string>.Fail("Ya existe un usuario con ese email.", field: "email");
 
-        var newUser = new Models.User
+        var newUser = new User
         {
             Nombre = nombre,
             Email = email,
             PwdHash = BCrypt.Net.BCrypt.HashPassword(pwd),
-            Rol = Models.UserRole.User
+            Rol = UserRole.User
         };
 
         dbContext.Users.Add(newUser);

@@ -1,4 +1,4 @@
-namespace comidas_backend.Models;
+namespace comidas_backend.Models.Domain;
 
 public enum UserRole
 {
