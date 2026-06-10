@@ -6,4 +6,6 @@ namespace comidas_backend.Services;
 public interface IUserService
 {
     Task<Result<string>> LoginUser(string email, string pwd);
+    Task<Result<UserDto>> GetUserById(int id);
+    
 }

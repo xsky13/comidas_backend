@@ -23,4 +23,18 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
         var token = authService.CreateToken(userWithEmail.Id, userWithEmail.Email, userWithEmail.Rol);
         return Result<string>.Ok(token.Value!);
     }
+
+    public async Task<Result<UserDto>> GetUserById(int id)
+    {
+        var user = await dbContext.Users.FindAsync(id);
+        if (user == null) return Result<UserDto>.Fail("El usuario no existe");
+
+        return Result<UserDto>.Ok(new UserDto()
+        {
+            Id = user.Id,
+            Nombre = user.Nombre,
+            Email = user.Email,
+            Rol = user.Rol
+        });
+    }
 }

@@ -22,7 +22,7 @@ public class AuthServiceImpl(IOptions<AuthOptions> options) : IAuthService
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        // var jwt = new JwtSecurityToken(is);
+        
         var token = new JwtSecurityToken(
             issuer: options.Value.Issuer,
             audience: options.Value.Audience,

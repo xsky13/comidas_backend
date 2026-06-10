@@ -1,5 +1,8 @@
+using comidas_backend.Models.Dto.Entity;
 using comidas_backend.Models.Dto.Request;
 using comidas_backend.Services;
+using comidas_backend.Utils;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace comidas_backend.Controllers;
@@ -8,6 +11,16 @@ namespace comidas_backend.Controllers;
 [Route("api/[controller]")]
 public class UserController(IUserService userService): ControllerBase
 {
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<UserDto>> GetUser()
+    {
+        var userId = User.GetUserId();
+        var response = await userService.GetUserById(userId);
+        
+        return response.ToActionResult();
+    }
+    
     [HttpPost("login")]
     public async Task<ActionResult> Login([FromBody] LoginRequestDto request)
     {
