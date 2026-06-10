@@ -7,5 +7,5 @@ public interface IUserService
 {
     Task<Result<string>> LoginUser(string email, string pwd);
     Task<Result<UserDto>> GetUserById(int id);
-    
+    Task<Result<string>> RegisterUser(string nombre, string email, string pwd);
 }

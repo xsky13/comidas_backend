@@ -21,6 +21,23 @@ public class UserController(IUserService userService): ControllerBase
         return response.ToActionResult();
     }
     
+    [HttpPost("register")]
+    public async Task<ActionResult> Register([FromBody] RegisterRequestDto request)
+    {
+        var result = await userService.RegisterUser(request.Nombre, request.Email, request.Contrasena);
+        if (!result.Success) return BadRequest(new { Error = result.Error, Field = result.Field});
+
+        Response.Cookies.Append("X-Access-Token", result.Value!, new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            Expires = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        return Ok();
+    }
+
     [HttpPost("login")]
     public async Task<ActionResult> Login([FromBody] LoginRequestDto request)
     {
@@ -44,4 +61,5 @@ public class UserController(IUserService userService): ControllerBase
         Response.Cookies.Delete("X-Access-Token");
         return Ok();
     }
+
 }
