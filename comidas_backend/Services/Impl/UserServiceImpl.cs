@@ -13,11 +13,11 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
         var userWithEmail = await dbContext.Users.FirstOrDefaultAsync(user => user.Email == email);
 
         if (userWithEmail == null)
-            return Result<string>.Fail("El usuario con ese email no existe.");
+            return Result<string>.Fail("El usuario con ese email no existe.", field: "email");
 
         // compare hash
         if (!BCrypt.Net.BCrypt.Verify(pwd, userWithEmail.PwdHash))
-            return Result<string>.Fail("Contrasena incorrecta.");
+            return Result<string>.Fail("Contrasena incorrecta.", field: "contrasena");
         
         // return token
         var token = authService.CreateToken(userWithEmail.Id, userWithEmail.Email, userWithEmail.Rol);

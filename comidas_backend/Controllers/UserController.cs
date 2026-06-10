@@ -5,14 +5,14 @@ using Microsoft.AspNetCore.Mvc;
 namespace comidas_backend.Controllers;
 
 [ApiController]
-[Route("/api/[controller]")]
+[Route("api/[controller]")]
 public class UserController(IUserService userService): ControllerBase
 {
-    [HttpPost("/login")]
+    [HttpPost("login")]
     public async Task<ActionResult> Login([FromBody] LoginRequestDto request)
     {
         var result = await userService.LoginUser(request.Email, request.Contrasena);
-        if (!result.Success) return BadRequest(result.Error);
+        if (!result.Success) return BadRequest(new { Error = result.Error, Field = result.Field});
         
         Response.Cookies.Append("X-Access-Token", result.Value!, new CookieOptions
         {
