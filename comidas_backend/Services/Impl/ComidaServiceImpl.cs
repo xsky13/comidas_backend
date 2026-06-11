@@ -2,11 +2,12 @@ using comidas_backend.Data;
 using comidas_backend.Models.Domain;
 using comidas_backend.Models.Dto.Request;
 using comidas_backend.Utils;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace comidas_backend.Services.Impl;
 
-public class ComidaServiceImpl(ComidasDbContext dbContext) : IComidaService
+public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileService) : IComidaService
 {
     public async Task<List<Comida>> GetComidas()
     {
@@ -19,13 +20,18 @@ public class ComidaServiceImpl(ComidasDbContext dbContext) : IComidaService
         if (string.IsNullOrEmpty(request.Titulo))
             return Result<Comida>.Fail("El titulo no puede estar vacio", field: "titulo");
         
-        if (string.IsNullOrEmpty(request.ImgUrl))
-            return Result<Comida>.Fail("La imagen no puede ser nula", field: "img_url");
+        // validar archivo
+        var fileValidation = await fileService.VerifySingle(request.File);
+        if (!fileValidation.Success) return Result<Comida>.Fail(fileValidation.Error);
+        
+        // crear archivo
+        var returnedUrl = await fileService.CreateFile(request.File, userId);
+        if (!returnedUrl.Success) return Result<Comida>.Fail(returnedUrl.Error);
 
         var comida = new Comida()
         {
             Titulo = request.Titulo,
-            ImgUrl = request.ImgUrl,
+            ImgUrl = returnedUrl.Value,
             PromedioEstrellas = 0,
             CantidadCalificaciones = 0,
             Confirmada = confirmada,

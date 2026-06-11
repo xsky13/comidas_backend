@@ -6,6 +6,7 @@ using comidas_backend.Utils;
 using DotNetEnv;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi;
 
@@ -82,6 +83,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
 builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 builder.Services.AddScoped<IUserService, UserServiceImpl>();
 builder.Services.AddScoped<IComidaService, ComidaServiceImpl>();
+builder.Services.AddScoped<IFileService, LocalFileServiceImpl>();
 
 builder.Services.AddAuthorization();
 
@@ -94,6 +96,15 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(); 
     app.UseSwaggerUI(); 
 }
+
+app.UseStaticFiles();
+
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(
+        "/home/jared/comidas_backend/comidas_backend/UploadAreaTemp"),
+    RequestPath = "/uploads"
+});
 
 app.UseHttpsRedirection();
 

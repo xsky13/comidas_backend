@@ -18,8 +18,9 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     }
     
     [HttpPost]
-    [Authorize]
-    public async Task<ActionResult<Comida>> Create([FromBody] CreateComidaRequestDto request)
+    [Authorize(Roles = "Admin")] // fix to dynamic
+    [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit
+    public async Task<ActionResult<Comida>> Create([FromForm] CreateComidaRequestDto request)
     {
         var userId = User.GetUserId();
         var response = await comidaService.CreateComida(request, true, userId);
