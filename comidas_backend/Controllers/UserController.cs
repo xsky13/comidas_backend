@@ -52,7 +52,11 @@ public class UserController(IUserService userService): ControllerBase
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
         
-        return Ok();
+#if DEBUG
+        return Ok(new { Token = result.Value });
+#else
+    return Ok();
+#endif
     }
     [Authorize]
     [HttpPost("logout")]
