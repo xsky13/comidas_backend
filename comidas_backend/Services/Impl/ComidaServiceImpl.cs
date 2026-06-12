@@ -1,5 +1,6 @@
 using comidas_backend.Data;
 using comidas_backend.Models.Domain;
+using comidas_backend.Models.Dto.Entity;
 using comidas_backend.Models.Dto.Request;
 using comidas_backend.Utils;
 using Microsoft.AspNetCore.Mvc;
@@ -9,9 +10,34 @@ namespace comidas_backend.Services.Impl;
 
 public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileService) : IComidaService
 {
-    public async Task<List<Comida>> GetComidas()
+    public async Task<List<ComidaDto>> GetComidas(int userId)
     {
-        var comidas = await dbContext.Comidas.ToListAsync();
+        // doble query para mas performance: primero hacemos select de la comida, y despues solo de la calificacion perteneciente al usuario
+        // despues las seteamos en el dto, asi no tenemos que hacer loop a traves de todas las calificaciones
+        var comidas = await dbContext.Comidas
+            .Select(comida => new
+            {
+                Comida = comida,
+                Calificacion = comida.Calificacions
+                    .Where(c => c.UserId == userId)
+                    .Select(c => (int?)c.Cantidad)
+                    .SingleOrDefault()
+                
+            })
+            .Select(result => new ComidaDto()
+            {
+                Id = result.Comida.Id,
+                Titulo = result.Comida.Titulo,
+                ImgUrl = result.Comida.ImgUrl,
+                UserId = result.Comida.UserId,
+                CantidadCalificaciones = result.Comida.CantidadCalificaciones,
+                PromedioEstrellas = result.Comida.PromedioEstrellas,
+                Confirmada = result.Comida.Confirmada,
+                UsuarioCalifica = result.Calificacion != null,
+                CalificacionUsuario = result.Calificacion,
+            })
+            .ToListAsync();
+        
         return comidas;
     }
 

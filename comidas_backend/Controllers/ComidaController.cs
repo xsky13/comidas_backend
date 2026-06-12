@@ -14,7 +14,8 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<Comida>>> GetAll()
     {
-        return Ok(await comidaService.GetComidas());
+        var userId = User.GetUserId();
+        return Ok(await comidaService.GetComidas(userId));
     }
     
     [HttpPost]

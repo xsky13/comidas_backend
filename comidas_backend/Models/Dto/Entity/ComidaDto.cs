@@ -1,6 +1,8 @@
-namespace comidas_backend.Models.Domain;
+using comidas_backend.Models.Domain;
 
-public class Comida
+namespace comidas_backend.Models.Dto.Entity;
+
+public class ComidaDto
 {
     public int Id { get; set; }
     public string Titulo { get; set; }
@@ -9,6 +11,7 @@ public class Comida
     public int CantidadCalificaciones { get; set; }
     public bool Confirmada { get; set; }
     public int UserId { get; set; }
-    public User User { get; set; }
-    public List<Calificacion> Calificacions { get; set; }
+    public IEnumerable<CalificacionDto> Calificaciones { get; set; } = [];
+    public bool UsuarioCalifica { get; set; }
+    public int? CalificacionUsuario { get; set; }
 }
