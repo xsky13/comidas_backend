@@ -5,6 +5,7 @@ using comidas_backend.Models.Dto.Request;
 using comidas_backend.Utils;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 
 namespace comidas_backend.Services.Impl;
 
@@ -68,5 +69,38 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         await dbContext.SaveChangesAsync();
 
         return Result<Comida>.Ok(comida);
+    }
+
+    public async Task<Result<object>> RateComida(RateComidaRequestDto request, int comidaId, int userId)
+    {
+        var comida = await dbContext.Comidas.FindAsync(comidaId);
+
+        if (comida == null)
+            return Result<object>.Fail("La comida no existe");
+        
+        
+        var sumatoriaCalificacionesAnterior = comida.PromedioEstrellas * comida.CantidadCalificaciones;
+        comida.PromedioEstrellas = (sumatoriaCalificacionesAnterior + request.Rating) / (comida.CantidadCalificaciones + 1);
+        comida.CantidadCalificaciones += 1;
+
+        var newCalificacion = new Calificacion
+        {
+            Cantidad = request.Rating,
+            UserId = userId,
+            ComidaId = comida.Id
+        };
+
+        dbContext.Calificaciones.Add(newCalificacion);
+        
+        try
+        {
+            await dbContext.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex) when (ex.InnerException is PostgresException pg && pg.SqlState == "23505")
+        {
+            return Result<object>.Fail("Ya califico esta comida");
+        }
+
+        return Result<object>.Ok(new { Success = true });
     }
 }

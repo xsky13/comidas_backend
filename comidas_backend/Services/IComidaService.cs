@@ -9,4 +9,5 @@ public interface IComidaService
 {
     Task<List<ComidaDto>> GetComidas(int userId);
     Task<Result<Comida>> CreateComida(CreateComidaRequestDto request, bool confirmada, int userId);
+    Task<Result<object>> RateComida(RateComidaRequestDto request, int comidaId, int userId);
 }

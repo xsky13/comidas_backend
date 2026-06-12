@@ -27,4 +27,13 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
         var response = await comidaService.CreateComida(request, true, userId);
         return response.ToActionResult();
     }
+
+    [HttpPost("{id}/rate")]
+    [Authorize]
+    public async Task<ActionResult<object>> RateFood([FromBody] RateComidaRequestDto request, int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.RateComida(request, id, userId);
+        return response.ToActionResult();
+    }
 }
