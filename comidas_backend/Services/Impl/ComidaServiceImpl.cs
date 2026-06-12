@@ -36,7 +36,9 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
                 Confirmada = result.Comida.Confirmada,
                 UsuarioCalifica = result.Calificacion != null,
                 CalificacionUsuario = result.Calificacion,
+                DateCreated = result.Comida.DateCreated
             })
+            .OrderBy(comida => comida.DateCreated)
             .ToListAsync();
         
         return comidas;
@@ -62,7 +64,8 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
             PromedioEstrellas = 0,
             CantidadCalificaciones = 0,
             Confirmada = confirmada,
-            UserId = userId
+            UserId = userId,
+            DateCreated = DateTime.UtcNow
         };
 
         dbContext.Comidas.Add(comida);

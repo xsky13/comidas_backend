@@ -14,4 +14,5 @@ public class ComidaDto
     public IEnumerable<CalificacionDto> Calificaciones { get; set; } = [];
     public bool UsuarioCalifica { get; set; }
     public int? CalificacionUsuario { get; set; }
+    public DateTime  DateCreated { get; set; }
 }
