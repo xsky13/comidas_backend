@@ -67,4 +67,37 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
         var token = authService.CreateToken(newUser.Id, newUser.Email, newUser.Rol);
         return Result<string>.Ok(token.Value!);
     }
+
+    public async Task<Result<UserDto>> UpdateUser(int id, string? nombre, string? email, string? pwd)
+    {
+        var user = await dbContext.Users.FindAsync(id);
+        if (user == null) return Result<UserDto>.Fail("El usuario no existe");
+
+        if (!string.IsNullOrWhiteSpace(nombre))
+            user.Nombre = nombre;
+
+        if (!string.IsNullOrWhiteSpace(email))
+        {
+            if (await dbContext.Users.AnyAsync(u => u.Email == email && u.Id != id))
+                return Result<UserDto>.Fail("Ya existe un usuario con ese email.", field: "email");
+            user.Email = email;
+        }
+
+        if (!string.IsNullOrWhiteSpace(pwd))
+        {
+            if (pwd.Length < 6)
+                return Result<UserDto>.Fail("La contraseña debe tener al menos 6 caracteres.", field: "contrasena");
+            user.PwdHash = BCrypt.Net.BCrypt.HashPassword(pwd);
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        return Result<UserDto>.Ok(new UserDto()
+        {
+            Id = user.Id,
+            Nombre = user.Nombre,
+            Email = user.Email,
+            Rol = user.Rol
+        });
+    }
 }
