@@ -55,9 +55,19 @@ public class UserController(IUserService userService): ControllerBase
 #if DEBUG
         return Ok(new { Token = result.Value });
 #else
-    return Ok();
+        return Ok();
 #endif
     }
+
+    [Authorize]
+    [HttpPut("me")]
+    public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserRequestDto request)
+    {
+        var userId = User.GetUserId();
+        var result = await userService.UpdateUser(userId, request.Nombre, request.Email, request.Contrasena);
+        return result.ToActionResult();
+    }
+
     [Authorize]
     [HttpPost("logout")]
     public async Task<ActionResult> Logout()
