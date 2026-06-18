@@ -18,6 +18,13 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
         return Ok(await comidaService.GetComidas(userId));
     }
     
+    [HttpGet("proposals")]
+    public async Task<ActionResult<List<Comida>>> GetUserProposals()
+    {
+        var userId = User.GetUserId();
+        return Ok(await comidaService.GetProposals(userId));
+    }
+    
     [HttpPost]
     [Authorize(Roles = "Admin")] // fix to dynamic
     [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit
@@ -25,6 +32,16 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     {
         var userId = User.GetUserId();
         var response = await comidaService.CreateComida(request, true, userId);
+        return response.ToActionResult();
+    }
+    
+    [HttpPost("fromProposal")]
+    [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit
+    public async Task<ActionResult<Comida>> CreateFromProposal([FromForm] CreateComidaRequestDto request)
+    {
+        // crear comida de propuesta
+        var userId = User.GetUserId();
+        var response = await comidaService.CreateComida(request, false, userId);
         return response.ToActionResult();
     }
 
