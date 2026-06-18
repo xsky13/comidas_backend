@@ -38,7 +38,7 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
                 CalificacionUsuario = result.Calificacion,
                 DateCreated = result.Comida.DateCreated
             })
-            .OrderBy(comida => comida.DateCreated)
+            .OrderByDescending(comida => comida.DateCreated)
             .ToListAsync();
         
         return comidas;
