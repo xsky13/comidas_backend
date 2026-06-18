@@ -4,6 +4,8 @@ namespace comidas_backend.Data;
 
 public class ComidasDbContext : DbContext
 {
+    public ComidasDbContext(DbContextOptions<ComidasDbContext> options) : base(options) { }
+
     public DbSet<User> Users { get; set; }
     public DbSet<Comida> Comidas { get; set; }
     public DbSet<Calificacion> Calificaciones { get; set; }

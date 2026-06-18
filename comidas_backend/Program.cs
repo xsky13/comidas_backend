@@ -53,7 +53,11 @@ builder.Services.AddSwaggerGen(options =>
 });
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
-builder.Services.AddDbContext<ComidasDbContext>();
+builder.Services.AddDbContext<ComidasDbContext>(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+    options.UseNpgsql(connectionString);
+});
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(options =>
 {
     options.TokenValidationParameters = new TokenValidationParameters
@@ -99,10 +103,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 
-app.UseStaticFiles(new StaticFileOptions
+var uploadsPath = Path.Combine(app.Environment.ContentRootPath, "UploadAreaTemp");
+if (!Directory.Exists(uploadsPath))
+    Directory.CreateDirectory(uploadsPath);
+
+app.UseStaticFiles(new StaticFileOptions 
 {
-    FileProvider = new PhysicalFileProvider(
-        "/home/jared/comidas_backend/comidas_backend/UploadAreaTemp"),
+    FileProvider = new PhysicalFileProvider(uploadsPath),
     RequestPath = "/uploads"
 });
 
