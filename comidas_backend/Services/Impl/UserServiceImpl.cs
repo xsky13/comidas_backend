@@ -1,6 +1,7 @@
 using comidas_backend.Data;
 using comidas_backend.Models.Domain;
 using comidas_backend.Models.Dto.Entity;
+using comidas_backend.Models.Dto.Request;
 using comidas_backend.Utils;
 using Microsoft.EntityFrameworkCore;
 
@@ -95,6 +96,30 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
         return Result<UserDto>.Ok(new UserDto()
         {
             Id = user.Id,
+            Nombre = user.Nombre,
+            Email = user.Email,
+            Rol = user.Rol
+        });
+    }
+
+    public async Task<Result<UserDto>> ChangePassword(int userId, ChangePasswordRequestDto request)
+    {
+        var user = await dbContext.Users.FindAsync(userId);
+        if (user == null) return Result<UserDto>.Fail("El usuario no existe");
+        
+        // el usuario es obtenido con el token, asi que eso ya verifica que sea el usuario autenticado
+        if (!BCrypt.Net.BCrypt.Verify(request.oldPassword, user.PwdHash))
+            return Result<UserDto>.Fail("La contrasena antigua no es valida", field: "oldPassword");
+        
+        if (request.newPassword != request.newPasswordRepeat)
+            return Result<UserDto>.Fail("Las contrasenas no coinciden", field: "newPasswordRepeat");
+
+        user.PwdHash = BCrypt.Net.BCrypt.HashPassword(request.newPassword);
+        await dbContext.SaveChangesAsync();
+
+        return Result<UserDto>.Ok(new UserDto
+        {
+            Id = userId,
             Nombre = user.Nombre,
             Email = user.Email,
             Rol = user.Rol
