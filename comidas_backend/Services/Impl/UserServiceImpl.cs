@@ -125,4 +125,15 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
             Rol = user.Rol
         });
     }
+
+    public async Task<Result<string>> DeleteUser(int id)
+    {
+        var user = await dbContext.Users.FindAsync(id);
+        if (user == null) return Result<string>.Fail("El usuario no existe");
+
+        dbContext.Users.Remove(user);
+        await dbContext.SaveChangesAsync();
+
+        return Result<string>.Ok("Usuario eliminado correctamente");
+    }
 }
