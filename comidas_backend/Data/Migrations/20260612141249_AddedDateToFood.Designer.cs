@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using comidas_backend.Data;
@@ -11,9 +12,11 @@ using comidas_backend.Data;
 namespace comidas_backend.Migrations
 {
     [DbContext(typeof(ComidasDbContext))]
-    partial class ComidasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260612141249_AddedDateToFood")]
+    partial class AddedDateToFood
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

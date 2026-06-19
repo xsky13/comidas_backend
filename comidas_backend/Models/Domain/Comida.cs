@@ -10,6 +10,6 @@ public class Comida
     public bool Confirmada { get; set; }
     public int UserId { get; set; }
     public User User { get; set; }
-    public bool UsuarioCalifica { get; set; }
-    public int? CalificacionUsuario { get; set; } = null;
+    public List<Calificacion> Calificacions { get; set; }
+    public DateTime DateCreated { get; set; }
 }

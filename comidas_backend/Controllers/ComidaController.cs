@@ -14,7 +14,8 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     [HttpGet]
     public async Task<ActionResult<List<Comida>>> GetAll()
     {
-        return Ok(await comidaService.GetComidas());
+        var userId = User.GetUserId();
+        return Ok(await comidaService.GetComidas(userId));
     }
     
     [HttpPost]
@@ -24,6 +25,15 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     {
         var userId = User.GetUserId();
         var response = await comidaService.CreateComida(request, true, userId);
+        return response.ToActionResult();
+    }    
+
+    [HttpPost("{id}/rate")]
+    [Authorize]
+    public async Task<ActionResult<object>> RateFood([FromBody] RateComidaRequestDto request, int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.RateComida(request, id, userId);
         return response.ToActionResult();
     }
 }

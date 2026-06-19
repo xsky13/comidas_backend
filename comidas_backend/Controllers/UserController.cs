@@ -60,11 +60,20 @@ public class UserController(IUserService userService): ControllerBase
     }
 
     [Authorize]
-    [HttpPut("me")]
+    [HttpPut]
     public async Task<ActionResult<UserDto>> UpdateUser([FromBody] UpdateUserRequestDto request)
     {
         var userId = User.GetUserId();
         var result = await userService.UpdateUser(userId, request.Nombre, request.Email, request.Contrasena);
+        return result.ToActionResult();
+    }
+    
+    [Authorize]
+    [HttpPut("changePassword")]
+    public async Task<ActionResult<UserDto>> ChangePassword(ChangePasswordRequestDto request)
+    {
+        var userId = User.GetUserId();
+        var result = await userService.ChangePassword(userId, request);
         return result.ToActionResult();
     }
 
