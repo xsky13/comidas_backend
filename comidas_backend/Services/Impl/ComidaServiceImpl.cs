@@ -16,7 +16,7 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         // doble query para mas performance: primero hacemos select de la comida, y despues solo de la calificacion perteneciente al usuario
         // despues las seteamos en el dto, asi no tenemos que hacer loop a traves de todas las calificaciones
         var comidas = await dbContext.Comidas
-            .Where(comida => comida.Confirmada)
+            .Where(comida => comida.Confirmada && comida.Activa)
             .Select(comida => new
             {
                 Comida = comida,
@@ -140,6 +140,27 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         // Eliminar la calificación
         dbContext.Calificaciones.Remove(calificacion);
         
+        await dbContext.SaveChangesAsync();
+
+        return Result<object>.Ok(new { Success = true });
+    }
+
+    public async Task<Result<object>> DeactivateComida(int comidaId, int userId)
+    {
+        var comida = await dbContext.Comidas.FindAsync(comidaId);
+
+        if (comida == null)
+            return Result<object>.Fail("La comida no existe");
+
+        // Validar que el usuario sea el propietario de la comida
+        if (comida.UserId != userId)
+            return Result<object>.Fail("No tienes permisos para modificar esta comida");
+
+        // Si ya está desactivada
+        if (!comida.Activa)
+            return Result<object>.Fail("La comida ya fue dada de baja");
+
+        comida.Activa = false;
         await dbContext.SaveChangesAsync();
 
         return Result<object>.Ok(new { Success = true });
