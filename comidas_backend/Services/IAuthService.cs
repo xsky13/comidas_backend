@@ -1,4 +1,4 @@
-using comidas_backend.Models;
+using comidas_backend.Models.Domain;
 using comidas_backend.Utils;
 
 namespace comidas_backend.Services;

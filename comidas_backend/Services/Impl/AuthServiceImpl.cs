@@ -1,7 +1,7 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using comidas_backend.Models;
+using comidas_backend.Models.Domain;
 using comidas_backend.Utils;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
@@ -22,13 +22,13 @@ public class AuthServiceImpl(IOptions<AuthOptions> options) : IAuthService
         
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(options.Value.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-        // var jwt = new JwtSecurityToken(is);
+        
         var token = new JwtSecurityToken(
             issuer: options.Value.Issuer,
             audience: options.Value.Audience,
             claims: claims,
-            expires: DateTime.UtcNow.AddDays(options.Value.ExpDays),
             notBefore: DateTime.UtcNow,
+            expires: DateTime.UtcNow.AddDays(7),
             signingCredentials: credentials
         );
 

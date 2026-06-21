@@ -1,3 +1,5 @@
+using comidas_backend.Models.Domain;
+
 namespace comidas_backend.Models.Dto.Entity;
 
 public class UserDto
