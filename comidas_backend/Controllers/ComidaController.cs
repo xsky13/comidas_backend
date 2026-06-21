@@ -36,4 +36,13 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
         var response = await comidaService.RateComida(request, id, userId);
         return response.ToActionResult();
     }
+    
+    [HttpDelete("{id}/unrate")]
+    [Authorize]
+    public async Task<ActionResult<object>> UnrateFood(int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.UnrateComida(id, userId);
+        return response.ToActionResult();
+    }
 }

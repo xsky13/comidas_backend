@@ -106,5 +106,42 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         }
 
         return Result<object>.Ok(new { Success = true });
+    }
+
+    public async Task<Result<object>> UnrateComida(int comidaId, int userId)
+    {
+        var comida = await dbContext.Comidas.FindAsync(comidaId);
+
+        if (comida == null)
+            return Result<object>.Fail("La comida no existe");
+
+        // Buscar la calificación del usuario para esta comida
+        var calificacion = await dbContext.Calificaciones
+            .FirstOrDefaultAsync(c => c.ComidaId == comidaId && c.UserId == userId);
+
+        if (calificacion == null)
+            return Result<object>.Fail("No tiene calificación en esta comida");
+
+        // Calcular el nuevo promedio
+        var sumatoriaSinLaCalificacion = comida.PromedioEstrellas * comida.CantidadCalificaciones - calificacion.Cantidad;
+        
+        if (comida.CantidadCalificaciones - 1 > 0)
+        {
+            comida.PromedioEstrellas = sumatoriaSinLaCalificacion / (comida.CantidadCalificaciones - 1);
+        }
+        else
+        {
+            // Si era la única calificación, resetear el promedio
+            comida.PromedioEstrellas = 0;
+        }
+        
+        comida.CantidadCalificaciones -= 1;
+
+        // Eliminar la calificación
+        dbContext.Calificaciones.Remove(calificacion);
+        
+        await dbContext.SaveChangesAsync();
+
+        return Result<object>.Ok(new { Success = true });
     }    
 }
