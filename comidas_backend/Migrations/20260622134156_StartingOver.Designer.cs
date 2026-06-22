@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using comidas_backend.Data;
@@ -11,9 +12,11 @@ using comidas_backend.Data;
 namespace comidas_backend.Migrations
 {
     [DbContext(typeof(ComidasDbContext))]
-    partial class ComidasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260622134156_StartingOver")]
+    partial class StartingOver
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -58,9 +61,7 @@ namespace comidas_backend.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<bool>("Activa")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true);
+                        .HasColumnType("boolean");
 
                     b.Property<int>("CantidadCalificaciones")
                         .HasColumnType("integer");
@@ -132,7 +133,7 @@ namespace comidas_backend.Migrations
                         .IsRequired();
 
                     b.HasOne("comidas_backend.Models.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Calificacions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -154,6 +155,11 @@ namespace comidas_backend.Migrations
                 });
 
             modelBuilder.Entity("comidas_backend.Models.Domain.Comida", b =>
+                {
+                    b.Navigation("Calificacions");
+                });
+
+            modelBuilder.Entity("comidas_backend.Models.Domain.User", b =>
                 {
                     b.Navigation("Calificacions");
                 });

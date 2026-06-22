@@ -2,7 +2,6 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using comidas_backend.Data;
@@ -12,11 +11,9 @@ using comidas_backend.Data;
 namespace comidas_backend.Migrations
 {
     [DbContext(typeof(ComidasDbContext))]
-    [Migration("20260612141249_AddedDateToFood")]
-    partial class AddedDateToFood
+    partial class ComidasDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -60,6 +57,9 @@ namespace comidas_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Activa")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("CantidadCalificaciones")
                         .HasColumnType("integer");
 
@@ -68,6 +68,9 @@ namespace comidas_backend.Migrations
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("text");
 
                     b.Property<string>("ImgUrl")
                         .IsRequired()
@@ -127,7 +130,7 @@ namespace comidas_backend.Migrations
                         .IsRequired();
 
                     b.HasOne("comidas_backend.Models.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Calificacions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -149,6 +152,11 @@ namespace comidas_backend.Migrations
                 });
 
             modelBuilder.Entity("comidas_backend.Models.Domain.Comida", b =>
+                {
+                    b.Navigation("Calificacions");
+                });
+
+            modelBuilder.Entity("comidas_backend.Models.Domain.User", b =>
                 {
                     b.Navigation("Calificacions");
                 });

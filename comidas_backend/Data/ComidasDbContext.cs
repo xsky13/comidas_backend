@@ -14,6 +14,9 @@ public class ComidasDbContext : DbContext
         modelBuilder.Entity<Calificacion>()
             .HasIndex(c => new { c.ComidaId, c.UserId })
             .IsUnique();
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Calificacions);
         
         base.OnModelCreating(modelBuilder);
     }

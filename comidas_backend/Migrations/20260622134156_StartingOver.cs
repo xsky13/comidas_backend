@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
@@ -6,11 +7,27 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace comidas_backend.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFoodAndStars : Migration
+    public partial class StartingOver : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "Users",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Nombre = table.Column<string>(type: "text", nullable: false),
+                    Email = table.Column<string>(type: "text", nullable: false),
+                    PwdHash = table.Column<string>(type: "text", nullable: false),
+                    Rol = table.Column<int>(type: "integer", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Comidas",
                 columns: table => new
@@ -18,11 +35,14 @@ namespace comidas_backend.Migrations
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     Titulo = table.Column<string>(type: "text", nullable: false),
+                    Descripcion = table.Column<string>(type: "text", nullable: true),
                     ImgUrl = table.Column<string>(type: "text", nullable: false),
                     PromedioEstrellas = table.Column<float>(type: "real", nullable: false),
                     CantidadCalificaciones = table.Column<int>(type: "integer", nullable: false),
                     Confirmada = table.Column<bool>(type: "boolean", nullable: false),
-                    UserId = table.Column<int>(type: "integer", nullable: false)
+                    Activa = table.Column<bool>(type: "boolean", nullable: false),
+                    UserId = table.Column<int>(type: "integer", nullable: false),
+                    DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -63,9 +83,10 @@ namespace comidas_backend.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Calificaciones_ComidaId",
+                name: "IX_Calificaciones_ComidaId_UserId",
                 table: "Calificaciones",
-                column: "ComidaId");
+                columns: new[] { "ComidaId", "UserId" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Calificaciones_UserId",
@@ -86,6 +107,9 @@ namespace comidas_backend.Migrations
 
             migrationBuilder.DropTable(
                 name: "Comidas");
+
+            migrationBuilder.DropTable(
+                name: "Users");
         }
     }
 }
