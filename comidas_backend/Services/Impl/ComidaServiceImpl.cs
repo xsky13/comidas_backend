@@ -168,19 +168,31 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         return Result<object>.Ok(new { Success = true });
     }
 
-    public async Task<Result<ComidaDto>> UpdateComida(UpdateComidaRequestDto request, int comidaId, int userId)
+    public async Task<Result<object>> DeleteComida(int comidaId, int userId)
+    {
+        var rowsAffected = await dbContext.Comidas
+            .Where(c => c.Id == comidaId && c.UserId == userId)
+            .ExecuteDeleteAsync();
+
+        if (rowsAffected == 0)
+            return Result<object>.Fail("La comida no existe o no tienes permisos");
+
+        return Result<object>.Ok(new { Success = true });
+    }
+
+    public async Task<Result<object>> UpdateComida(UpdateComidaRequestDto request, int comidaId, int userId)
     {
         var comida = await dbContext.Comidas.FindAsync(comidaId);
 
         if (comida == null)
-            return Result<ComidaDto>.Fail("La comida no existe");
+            return Result<object>.Fail("La comida no existe");
 
         // Validar que el usuario sea el propietario de la comida
         if (comida.UserId != userId)
-            return Result<ComidaDto>.Fail("No tienes permisos para modificar esta comida");
+            return Result<object>.Fail("No tienes permisos para modificar esta comida");
 
         if (string.IsNullOrEmpty(request.Titulo))
-            return Result<ComidaDto>.Fail("El titulo no puede estar vacio", field: "titulo");
+            return Result<object>.Fail("El titulo no puede estar vacio", field: "titulo");
 
         // Actualizar título y descripción
         comida.Titulo = request.Titulo;
@@ -191,38 +203,18 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         {
             // Validar archivo
             var fileValidation = await fileService.VerifySingle(request.File);
-            if (!fileValidation.Success) return Result<ComidaDto>.Fail(fileValidation.Error);
+            if (!fileValidation.Success) return Result<object>.Fail(fileValidation.Error);
 
             // Crear archivo
             var returnedUrl = await fileService.CreateFile(request.File, userId);
-            if (!returnedUrl.Success) return Result<ComidaDto>.Fail(returnedUrl.Error);
+            if (!returnedUrl.Success) return Result<object>.Fail(returnedUrl.Error);
 
             comida.ImgUrl = returnedUrl.Value;
         }
 
         await dbContext.SaveChangesAsync();
+        
 
-        // Obtener la calificación del usuario para esta comida
-        var calificacionUsuario = await dbContext.Calificaciones
-            .Where(c => c.ComidaId == comidaId && c.UserId == userId)
-            .Select(c => (int?)c.Cantidad)
-            .SingleOrDefaultAsync();
-
-        var comidaDto = new ComidaDto
-        {
-            Id = comida.Id,
-            Titulo = comida.Titulo,
-            Descripcion = comida.Descripcion,
-            ImgUrl = comida.ImgUrl,
-            UserId = comida.UserId,
-            CantidadCalificaciones = comida.CantidadCalificaciones,
-            PromedioEstrellas = comida.PromedioEstrellas,
-            Confirmada = comida.Confirmada,
-            UsuarioCalifica = calificacionUsuario != null,
-            CalificacionUsuario = calificacionUsuario,
-            DateCreated = comida.DateCreated
-        };
-
-        return Result<ComidaDto>.Ok(comidaDto);
+        return Result<object>.Ok(new { Success = true });
     }    
 }

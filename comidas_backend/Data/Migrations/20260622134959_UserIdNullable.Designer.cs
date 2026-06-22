@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using comidas_backend.Data;
@@ -11,9 +12,11 @@ using comidas_backend.Data;
 namespace comidas_backend.Migrations
 {
     [DbContext(typeof(ComidasDbContext))]
-    partial class ComidasDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260622134959_UserIdNullable")]
+    partial class UserIdNullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -83,7 +86,7 @@ namespace comidas_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -143,10 +146,9 @@ namespace comidas_backend.Migrations
             modelBuilder.Entity("comidas_backend.Models.Domain.Comida", b =>
                 {
                     b.HasOne("comidas_backend.Models.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Comidas")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });
@@ -159,6 +161,8 @@ namespace comidas_backend.Migrations
             modelBuilder.Entity("comidas_backend.Models.Domain.User", b =>
                 {
                     b.Navigation("Calificacions");
+
+                    b.Navigation("Comidas");
                 });
 #pragma warning restore 612, 618
         }

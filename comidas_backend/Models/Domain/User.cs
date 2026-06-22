@@ -14,4 +14,5 @@ public class User
     public string PwdHash { get; set; }
     public UserRole Rol { get; set; }
     public List<Calificacion> Calificacions { get; set; }
+    public List<Comida> Comidas { get; set; }
 }

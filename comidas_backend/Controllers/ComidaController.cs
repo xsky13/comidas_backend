@@ -51,7 +51,7 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     public async Task<ActionResult<object>> DeleteFood(int id)
     {
         var userId = User.GetUserId();
-        var response = await comidaService.DeactivateComida(id, userId);
+        var response = await comidaService.DeleteComida(id, userId);
         return response.ToActionResult();
     }
 

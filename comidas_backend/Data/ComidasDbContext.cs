@@ -17,6 +17,12 @@ public class ComidasDbContext : DbContext
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Calificacions);
+
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Comidas)
+            .WithOne(c => c.User)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
         
         base.OnModelCreating(modelBuilder);
     }

@@ -11,7 +11,7 @@ public class ComidaDto
     public float PromedioEstrellas { get; set; }
     public int CantidadCalificaciones { get; set; }
     public bool Confirmada { get; set; }
-    public int UserId { get; set; }
+    public int? UserId { get; set; }
     public IEnumerable<CalificacionDto> Calificaciones { get; set; } = [];
     public bool UsuarioCalifica { get; set; }
     public int? CalificacionUsuario { get; set; }
