@@ -36,4 +36,32 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
         var response = await comidaService.RateComida(request, id, userId);
         return response.ToActionResult();
     }
+    
+    [HttpDelete("{id}/unrate")]
+    [Authorize]
+    public async Task<ActionResult<object>> UnrateFood(int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.UnrateComida(id, userId);
+        return response.ToActionResult();
+    }
+    
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<object>> DeleteFood(int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.DeactivateComida(id, userId);
+        return response.ToActionResult();
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit
+    public async Task<ActionResult<object>> UpdateFood([FromForm] UpdateComidaRequestDto request, int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.UpdateComida(request, id, userId);
+        return response.ToActionResult();
+    }
 }

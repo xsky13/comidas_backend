@@ -16,7 +16,7 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         // doble query para mas performance: primero hacemos select de la comida, y despues solo de la calificacion perteneciente al usuario
         // despues las seteamos en el dto, asi no tenemos que hacer loop a traves de todas las calificaciones
         var comidas = await dbContext.Comidas
-            .Where(comida => comida.Confirmada)
+            .Where(comida => comida.Confirmada && comida.Activa)
             .Select(comida => new
             {
                 Comida = comida,
@@ -30,6 +30,7 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
             {
                 Id = result.Comida.Id,
                 Titulo = result.Comida.Titulo,
+                Descripcion = result.Comida.Descripcion,
                 ImgUrl = result.Comida.ImgUrl,
                 UserId = result.Comida.UserId,
                 CantidadCalificaciones = result.Comida.CantidadCalificaciones,
@@ -61,6 +62,7 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         var comida = new Comida()
         {
             Titulo = request.Titulo,
+            Descripcion = request.Descripcion,
             ImgUrl = returnedUrl.Value,
             PromedioEstrellas = 0,
             CantidadCalificaciones = 0,
@@ -106,5 +108,121 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         }
 
         return Result<object>.Ok(new { Success = true });
+    }
+
+    public async Task<Result<object>> UnrateComida(int comidaId, int userId)
+    {
+        var comida = await dbContext.Comidas.FindAsync(comidaId);
+
+        if (comida == null)
+            return Result<object>.Fail("La comida no existe");
+
+        // Buscar la calificación del usuario para esta comida
+        var calificacion = await dbContext.Calificaciones
+            .FirstOrDefaultAsync(c => c.ComidaId == comidaId && c.UserId == userId);
+
+        if (calificacion == null)
+            return Result<object>.Fail("No tiene calificación en esta comida");
+
+        // Calcular el nuevo promedio
+        var sumatoriaSinLaCalificacion = comida.PromedioEstrellas * comida.CantidadCalificaciones - calificacion.Cantidad;
+        
+        if (comida.CantidadCalificaciones - 1 > 0)
+        {
+            comida.PromedioEstrellas = sumatoriaSinLaCalificacion / (comida.CantidadCalificaciones - 1);
+        }
+        else
+        {
+            // Si era la única calificación, resetear el promedio
+            comida.PromedioEstrellas = 0;
+        }
+        
+        comida.CantidadCalificaciones -= 1;
+
+        // Eliminar la calificación
+        dbContext.Calificaciones.Remove(calificacion);
+        
+        await dbContext.SaveChangesAsync();
+
+        return Result<object>.Ok(new { Success = true });
+    }
+
+    public async Task<Result<object>> DeactivateComida(int comidaId, int userId)
+    {
+        var comida = await dbContext.Comidas.FindAsync(comidaId);
+
+        if (comida == null)
+            return Result<object>.Fail("La comida no existe");
+
+        // Validar que el usuario sea el propietario de la comida
+        if (comida.UserId != userId)
+            return Result<object>.Fail("No tienes permisos para modificar esta comida");
+
+        // Si ya está desactivada
+        if (!comida.Activa)
+            return Result<object>.Fail("La comida ya fue dada de baja");
+
+        comida.Activa = false;
+        await dbContext.SaveChangesAsync();
+
+        return Result<object>.Ok(new { Success = true });
+    }
+
+    public async Task<Result<ComidaDto>> UpdateComida(UpdateComidaRequestDto request, int comidaId, int userId)
+    {
+        var comida = await dbContext.Comidas.FindAsync(comidaId);
+
+        if (comida == null)
+            return Result<ComidaDto>.Fail("La comida no existe");
+
+        // Validar que el usuario sea el propietario de la comida
+        if (comida.UserId != userId)
+            return Result<ComidaDto>.Fail("No tienes permisos para modificar esta comida");
+
+        if (string.IsNullOrEmpty(request.Titulo))
+            return Result<ComidaDto>.Fail("El titulo no puede estar vacio", field: "titulo");
+
+        // Actualizar título y descripción
+        comida.Titulo = request.Titulo;
+        comida.Descripcion = request.Descripcion;
+
+        // Si se proporciona una nueva imagen, actualizar
+        if (request.File != null)
+        {
+            // Validar archivo
+            var fileValidation = await fileService.VerifySingle(request.File);
+            if (!fileValidation.Success) return Result<ComidaDto>.Fail(fileValidation.Error);
+
+            // Crear archivo
+            var returnedUrl = await fileService.CreateFile(request.File, userId);
+            if (!returnedUrl.Success) return Result<ComidaDto>.Fail(returnedUrl.Error);
+
+            comida.ImgUrl = returnedUrl.Value;
+        }
+
+        await dbContext.SaveChangesAsync();
+
+        // Obtener la calificación del usuario para esta comida
+        var calificacionUsuario = await dbContext.Calificaciones
+            .Where(c => c.ComidaId == comidaId && c.UserId == userId)
+            .Select(c => (int?)c.Cantidad)
+            .SingleOrDefaultAsync();
+
+        var comidaDto = new ComidaDto
+        {
+            Id = comida.Id,
+            Titulo = comida.Titulo,
+            Descripcion = comida.Descripcion,
+            ImgUrl = comida.ImgUrl,
+            UserId = comida.UserId,
+            CantidadCalificaciones = comida.CantidadCalificaciones,
+            PromedioEstrellas = comida.PromedioEstrellas,
+            Confirmada = comida.Confirmada,
+            UsuarioCalifica = calificacionUsuario != null,
+            CalificacionUsuario = calificacionUsuario,
+            DateCreated = comida.DateCreated
+        };
+
+        return Result<ComidaDto>.Ok(comidaDto);
     }    
 }
