@@ -18,6 +18,15 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
         return Ok(await comidaService.GetComidas(userId));
     }
     
+    [HttpGet("byPromedio")]
+    public async Task<ActionResult<List<Comida>>> GetAll([FromQuery] string order)
+    {
+        var userId = User.GetUserId();
+        return order == "desc" ? 
+            Ok(await comidaService.GetComidasDesc(userId)) : 
+            Ok(await comidaService.GetComidasAsc(userId));
+    }
+    
     [HttpPost]
     [Authorize(Roles = "Admin")] // fix to dynamic
     [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit

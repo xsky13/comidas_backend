@@ -45,7 +45,79 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         
         return comidas;
     }
-    
+
+    public async Task<List<ComidaDto>> GetComidasAsc(int userId)
+    {
+        // doble query para mas performance: primero hacemos select de la comida, y despues solo de la calificacion perteneciente al usuario
+        // despues las seteamos en el dto, asi no tenemos que hacer loop a traves de todas las calificaciones
+        var comidas = await dbContext.Comidas
+            .Where(comida => comida.Confirmada && comida.Activa)
+            .Select(comida => new
+            {
+                Comida = comida,
+                Calificacion = comida.Calificacions
+                    .Where(c => c.UserId == userId)
+                    .Select(c => (int?)c.Cantidad)
+                    .SingleOrDefault()
+                
+            })
+            .Select(result => new ComidaDto()
+            {
+                Id = result.Comida.Id,
+                Titulo = result.Comida.Titulo,
+                Descripcion = result.Comida.Descripcion,
+                ImgUrl = result.Comida.ImgUrl,
+                UserId = result.Comida.UserId,
+                CantidadCalificaciones = result.Comida.CantidadCalificaciones,
+                PromedioEstrellas = result.Comida.PromedioEstrellas,
+                Confirmada = result.Comida.Confirmada,
+                UsuarioCalifica = result.Calificacion != null,
+                CalificacionUsuario = result.Calificacion,
+                DateCreated = result.Comida.DateCreated
+            })
+            .OrderBy(comida => comida.PromedioEstrellas)
+            .Take(3)
+            .ToListAsync();
+        
+        return comidas;
+    }
+
+    public async Task<List<ComidaDto>> GetComidasDesc(int userId)
+    {
+        // doble query para mas performance: primero hacemos select de la comida, y despues solo de la calificacion perteneciente al usuario
+        // despues las seteamos en el dto, asi no tenemos que hacer loop a traves de todas las calificaciones
+        var comidas = await dbContext.Comidas
+            .Where(comida => comida.Confirmada && comida.Activa)
+            .Select(comida => new
+            {
+                Comida = comida,
+                Calificacion = comida.Calificacions
+                    .Where(c => c.UserId == userId)
+                    .Select(c => (int?)c.Cantidad)
+                    .SingleOrDefault()
+                
+            })
+            .Select(result => new ComidaDto()
+            {
+                Id = result.Comida.Id,
+                Titulo = result.Comida.Titulo,
+                Descripcion = result.Comida.Descripcion,
+                ImgUrl = result.Comida.ImgUrl,
+                UserId = result.Comida.UserId,
+                CantidadCalificaciones = result.Comida.CantidadCalificaciones,
+                PromedioEstrellas = result.Comida.PromedioEstrellas,
+                Confirmada = result.Comida.Confirmada,
+                UsuarioCalifica = result.Calificacion != null,
+                CalificacionUsuario = result.Calificacion,
+                DateCreated = result.Comida.DateCreated
+            })
+            .OrderByDescending(comida => comida.PromedioEstrellas)
+            .Take(3)
+            .ToListAsync();
+        
+        return comidas;
+    }
+
     public async Task<Result<Comida>> CreateComida(CreateComidaRequestDto request, bool confirmada, int userId)
     {
         if (string.IsNullOrEmpty(request.Titulo))

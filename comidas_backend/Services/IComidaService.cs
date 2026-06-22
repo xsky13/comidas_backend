@@ -8,6 +8,8 @@ namespace comidas_backend.Services;
 public interface IComidaService
 {
     Task<List<ComidaDto>> GetComidas(int userId);
+    Task<List<ComidaDto>> GetComidasAsc(int userId);
+    Task<List<ComidaDto>> GetComidasDesc(int userId);
     Task<Result<Comida>> CreateComida(CreateComidaRequestDto request, bool confirmada, int userId);
     Task<Result<object>> RateComida(RateComidaRequestDto request, int comidaId, int userId);
     Task<Result<object>> UnrateComida(int comidaId, int userId);
