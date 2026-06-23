@@ -4,6 +4,8 @@ namespace comidas_backend.Data;
 
 public class ComidasDbContext : DbContext
 {
+    public ComidasDbContext(DbContextOptions<ComidasDbContext> options) : base(options) { }
+
     public DbSet<User> Users { get; set; }
     public DbSet<Comida> Comidas { get; set; }
     public DbSet<Calificacion> Calificaciones { get; set; }
@@ -16,7 +18,10 @@ public class ComidasDbContext : DbContext
             .IsUnique();
 
         modelBuilder.Entity<User>()
-            .HasMany(u => u.Calificacions);
+            .HasMany(u => u.Calificacions)
+            .WithOne(c => c.User)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Comidas)

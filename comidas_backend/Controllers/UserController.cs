@@ -30,8 +30,8 @@ public class UserController(IUserService userService): ControllerBase
         Response.Cookies.Append("X-Access-Token", result.Value!, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
         });
 
@@ -47,16 +47,17 @@ public class UserController(IUserService userService): ControllerBase
         Response.Cookies.Append("X-Access-Token", result.Value!, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
+
         });
         
-#if DEBUG
-        return Ok(new { Token = result.Value });
-#else
+//#if DEBUG
+//        return Ok(new { Token = result.Value });
+//#else
         return Ok();
-#endif
+//#endif
     }
 
     [Authorize]
@@ -85,4 +86,16 @@ public class UserController(IUserService userService): ControllerBase
         return Ok();
     }
 
+    [Authorize]
+    [HttpDelete]
+    public async Task<ActionResult> DeleteUser()
+    {
+        var userId = User.GetUserId();
+        var result = await userService.DeleteUser(userId);
+        if (!result.Success) return BadRequest(new { Error = result.Error, Field = result.Field});
+        Response.Cookies.Delete("X-Access-Token");
+        
+        return Ok(new { Message = result.Value });
+
+    }
 }

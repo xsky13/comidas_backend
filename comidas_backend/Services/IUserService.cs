@@ -11,4 +11,5 @@ public interface IUserService
     Task<Result<string>> RegisterUser(string nombre, string email, string pwd);
     Task<Result<UserDto>> UpdateUser(int id, string? nombre, string? email, string? pwd); 
     Task<Result<UserDto>> ChangePassword(int userId, ChangePasswordRequestDto request); 
+    Task<Result<string>> DeleteUser(int id);
 }
