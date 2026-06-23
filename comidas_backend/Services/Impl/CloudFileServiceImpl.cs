@@ -1,15 +1,16 @@
 using CloudinaryDotNet;
 using CloudinaryDotNet.Actions;
+using comidas_backend.Models.Dto;
 using comidas_backend.Utils;
 
 namespace comidas_backend.Services.Impl;
 
 public class CloudFileServiceImpl : IFileService
 {
-    public async Task<Result<string>> CreateFile(IFormFile file, int userId)
+    public async Task<Result<CloudFileCreationReturnDto>> CreateFile(IFormFile file, int userId)
     {
         if (file.Length == 0)
-            return Result<string>.Fail("El archivo esta vacio");
+            return Result<CloudFileCreationReturnDto>.Fail("El archivo esta vacio");
 
         
         var cloudinary = new Cloudinary(Environment.GetEnvironmentVariable("CLOUDINARY_URL") ?? throw new Exception("No existe url"));
@@ -28,27 +29,31 @@ public class CloudFileServiceImpl : IFileService
         var uploadResult = await cloudinary.UploadAsync(uploadParams);
 
         if (uploadResult.Error != null)
-            return Result<string>.Fail(uploadResult.Error.Message);
+            return Result<CloudFileCreationReturnDto>.Fail(uploadResult.Error.Message);
 
-        return Result<string>.Ok(uploadResult.SecureUrl.ToString());
+        return Result<CloudFileCreationReturnDto>.Ok(new CloudFileCreationReturnDto
+        {
+            Url = uploadResult.SecureUrl.ToString(),
+            PublicID = uploadResult.PublicId
+        });
     }
 
-    public async Task<Result<bool>> DeleteFile(string fileName, int userId)
+    public async Task<Result<bool>> DeleteFile(string fileName, int userId, string? publicId)
     {
-        // var cloudinary = new Cloudinary(
-        //     Environment.GetEnvironmentVariable("CLOUDINARY_URL") 
-        //     ?? throw new Exception("No existe url")
-        // );
-        // cloudinary.Api.Secure = true;
-        //
-        // var deleteParams = new DeletionParams(publicId);
-        // var result = await cloudinary.DestroyAsync(deleteParams);
-        //
-        // if (result.Result != "ok")
-        //     return Result<bool>.Fail("No se pudo eliminar el archivo");
-        //
-        // return Result<bool>.Ok(true);
-        throw new NotImplementedException();
+        var cloudinary = new Cloudinary(
+            Environment.GetEnvironmentVariable("CLOUDINARY_URL") 
+            ?? throw new Exception("No existe url")
+        );
+        cloudinary.Api.Secure = true;
+        
+        var deleteParams = new DeletionParams(publicId);
+        var result = await cloudinary.DestroyAsync(deleteParams);
+        
+        if (result.Result != "ok")
+            return Result<bool>.Fail("No se pudo eliminar el archivo");
+        
+        return Result<bool>.Ok(true);
+        // throw new NotImplementedException();
     }
 
     public async Task<Result<bool>> VerifySingle(IFormFile file)

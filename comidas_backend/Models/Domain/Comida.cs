@@ -14,4 +14,5 @@ public class Comida
     public User User { get; set; }
     public List<Calificacion> Calificacions { get; set; }
     public DateTime DateCreated { get; set; }
+    public string? PublicId { get; set; } = null;
 }

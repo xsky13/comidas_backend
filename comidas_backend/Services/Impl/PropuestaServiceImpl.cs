@@ -67,7 +67,7 @@ public class PropuestaServiceImpl(ComidasDbContext dbContext, IFileService fileS
         if (userRole != "Admin" && (!comida.Confirmada && comida.UserId != userId))
             return Result<Comida>.Fail("No tiene permisos para editar esta comida");
 
-        await fileService.DeleteFile(comida.ImgUrl, userId);
+        await fileService.DeleteFile(comida.ImgUrl, userId, comida.PublicId);
 
         dbContext.Comidas.Remove(comida);
         await dbContext.SaveChangesAsync();

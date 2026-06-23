@@ -135,7 +135,8 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         {
             Titulo = request.Titulo,
             Descripcion = request.Descripcion,
-            ImgUrl = returnedUrl.Value,
+            ImgUrl = returnedUrl.Value.Url,
+            PublicId = returnedUrl.Value.PublicID,
             PromedioEstrellas = 0,
             CantidadCalificaciones = 0,
             Confirmada = confirmada,
@@ -281,7 +282,8 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
             var returnedUrl = await fileService.CreateFile(request.File, userId);
             if (!returnedUrl.Success) return Result<object>.Fail(returnedUrl.Error);
 
-            comida.ImgUrl = returnedUrl.Value;
+            comida.ImgUrl = returnedUrl.Value.Url;
+            comida.PublicId = returnedUrl.Value.PublicID;
         }
 
         await dbContext.SaveChangesAsync();

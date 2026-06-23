@@ -1,3 +1,4 @@
+using comidas_backend.Models.Dto;
 using comidas_backend.Utils;
 
 namespace comidas_backend.Services.Impl;
@@ -5,7 +6,7 @@ namespace comidas_backend.Services.Impl;
 public class LocalFileServiceImpl : IFileService
 {
     private readonly string path = "/home/jared/comidas_backend/comidas_backend/UploadAreaTemp";
-    public async Task<Result<string>> CreateFile(IFormFile file, int userId)
+    public async Task<Result<CloudFileCreationReturnDto>> CreateFile(IFormFile file, int userId)
     {
         try
         {
@@ -31,15 +32,15 @@ public class LocalFileServiceImpl : IFileService
                     await file.CopyToAsync(stream);
                 }
             }
-            return Result<string>.Ok($"http://localhost:5125/uploads/{userId}/{fileName}");
+            return Result<CloudFileCreationReturnDto>.Ok(new CloudFileCreationReturnDto { Url = $"http://localhost:5125/uploads/{userId}/{fileName}" });
         }
         catch (Exception e)
         {
-            return Result<string>.Fail(e.Message);
+            return Result<CloudFileCreationReturnDto>.Fail(e.Message);
         }
     }
 
-    public async Task<Result<bool>> DeleteFile(string fileName, int userId)
+    public async Task<Result<bool>> DeleteFile(string fileName, int userId, string? publicId)
     {
         var filePath = Path.Combine(path, $"{userId}/{Path.GetFileName(fileName)}");
         if (System.IO.File.Exists(filePath))
