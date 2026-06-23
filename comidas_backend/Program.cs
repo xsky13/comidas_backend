@@ -100,10 +100,13 @@ if (app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 
+var uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "UploadAreaTemp");
+if (!Directory.Exists(uploadPath))
+    Directory.CreateDirectory(uploadPath);
+
 app.UseStaticFiles(new StaticFileOptions
 {
-    FileProvider = new PhysicalFileProvider(
-        "/home/jared/comidas_backend/comidas_backend/UploadAreaTemp"),
+    FileProvider = new PhysicalFileProvider(uploadPath),
     RequestPath = "/uploads"
 });
 
