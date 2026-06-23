@@ -47,16 +47,17 @@ public class UserController(IUserService userService): ControllerBase
         Response.Cookies.Append("X-Access-Token", result.Value!, new CookieOptions
         {
             HttpOnly = true,
-            Secure = true,
-            SameSite = SameSiteMode.Strict,
+            Secure = false,
+            SameSite = SameSiteMode.Lax,
             Expires = DateTimeOffset.UtcNow.AddDays(7)
+
         });
         
-#if DEBUG
-        return Ok(new { Token = result.Value });
-#else
+//#if DEBUG
+//        return Ok(new { Token = result.Value });
+//#else
         return Ok();
-#endif
+//#endif
     }
 
     [Authorize]
