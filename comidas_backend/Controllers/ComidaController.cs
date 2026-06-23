@@ -18,6 +18,15 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
         return Ok(await comidaService.GetComidas(userId));
     }
     
+    [HttpGet("byPromedio")]
+    public async Task<ActionResult<List<Comida>>> GetAll([FromQuery] string order)
+    {
+        var userId = User.GetUserId();
+        return order == "desc" ? 
+            Ok(await comidaService.GetComidasDesc(userId)) : 
+            Ok(await comidaService.GetComidasAsc(userId));
+    }
+    
     [HttpPost]
     [Authorize(Roles = "Admin")] // fix to dynamic
     [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit
@@ -34,6 +43,34 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     {
         var userId = User.GetUserId();
         var response = await comidaService.RateComida(request, id, userId);
+        return response.ToActionResult();
+    }
+    
+    [HttpDelete("{id}/unrate")]
+    [Authorize]
+    public async Task<ActionResult<object>> UnrateFood(int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.UnrateComida(id, userId);
+        return response.ToActionResult();
+    }
+    
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<object>> DeleteFood(int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.DeleteComida(id, userId);
+        return response.ToActionResult();
+    }
+
+    [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
+    [RequestSizeLimit(50 * 1024 * 1024)] // 50mb limit
+    public async Task<ActionResult<object>> UpdateFood([FromForm] UpdateComidaRequestDto request, int id)
+    {
+        var userId = User.GetUserId();
+        var response = await comidaService.UpdateComida(request, id, userId);
         return response.ToActionResult();
     }
 }

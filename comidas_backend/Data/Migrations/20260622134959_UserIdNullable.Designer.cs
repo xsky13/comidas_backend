@@ -12,8 +12,8 @@ using comidas_backend.Data;
 namespace comidas_backend.Migrations
 {
     [DbContext(typeof(ComidasDbContext))]
-    [Migration("20260612141249_AddedDateToFood")]
-    partial class AddedDateToFood
+    [Migration("20260622134959_UserIdNullable")]
+    partial class UserIdNullable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -60,6 +60,9 @@ namespace comidas_backend.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("Activa")
+                        .HasColumnType("boolean");
+
                     b.Property<int>("CantidadCalificaciones")
                         .HasColumnType("integer");
 
@@ -68,6 +71,9 @@ namespace comidas_backend.Migrations
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<string>("Descripcion")
+                        .HasColumnType("text");
 
                     b.Property<string>("ImgUrl")
                         .IsRequired()
@@ -80,7 +86,7 @@ namespace comidas_backend.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("UserId")
+                    b.Property<int?>("UserId")
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
@@ -127,7 +133,7 @@ namespace comidas_backend.Migrations
                         .IsRequired();
 
                     b.HasOne("comidas_backend.Models.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Calificacions")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -140,10 +146,9 @@ namespace comidas_backend.Migrations
             modelBuilder.Entity("comidas_backend.Models.Domain.Comida", b =>
                 {
                     b.HasOne("comidas_backend.Models.Domain.User", "User")
-                        .WithMany()
+                        .WithMany("Comidas")
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.Navigation("User");
                 });
@@ -151,6 +156,13 @@ namespace comidas_backend.Migrations
             modelBuilder.Entity("comidas_backend.Models.Domain.Comida", b =>
                 {
                     b.Navigation("Calificacions");
+                });
+
+            modelBuilder.Entity("comidas_backend.Models.Domain.User", b =>
+                {
+                    b.Navigation("Calificacions");
+
+                    b.Navigation("Comidas");
                 });
 #pragma warning restore 612, 618
         }

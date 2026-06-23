@@ -43,7 +43,15 @@ public class PropuestaController(IPropuestaService propuestaService, IComidaServ
         var response = await propuestaService.UpdateProposal(userId, userRole, id, request.Titulo);
         return response.ToActionResult();
     }
-    
+
+    [HttpPost("{id}/accept")]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<object>> AcceptProposal(int id)
+    {
+        var response = await propuestaService.AcceptProposal(id);
+        return response.ToActionResult();
+    }
+
     [HttpDelete("{id}")]
     [Authorize]
     public async Task<ActionResult<Comida>> DeleteProposal(int id)

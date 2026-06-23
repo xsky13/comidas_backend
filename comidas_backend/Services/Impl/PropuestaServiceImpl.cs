@@ -74,4 +74,15 @@ public class PropuestaServiceImpl(ComidasDbContext dbContext, IFileService fileS
 
         return Result<Comida>.Ok(comida);
     }
+
+    public async Task<Result<object>> AcceptProposal(int comidaId)
+    {
+        var rowsAffected = await dbContext.Comidas
+            .Where(comida => comida.Id == comidaId)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.Confirmada, true));
+
+        return rowsAffected == 0
+            ? Result<object>.Fail("La comida no existe")
+            : Result<object>.Ok(new { Success = true });
+    }
 }
