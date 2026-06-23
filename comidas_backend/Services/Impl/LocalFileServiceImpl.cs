@@ -4,7 +4,7 @@ namespace comidas_backend.Services.Impl;
 
 public class LocalFileServiceImpl : IFileService
 {
-    private readonly string path = "/home/jared/comidas_backend/comidas_backend/UploadAreaTemp";
+    private readonly string path = "C:\\Users\\Abiel Moreno\\progra3\\comidas_backend\\comidas_backend\\UploadAreaTemp";
     public async Task<Result<string>> CreateFile(IFormFile file, int userId)
     {
         try
