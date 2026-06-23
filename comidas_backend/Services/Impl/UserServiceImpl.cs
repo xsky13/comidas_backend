@@ -29,7 +29,7 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
     public async Task<Result<UserDto>> GetUserById(int id)
     {
         var user = await dbContext.Users.FindAsync(id);
-        if (user == null) return Result<UserDto>.Fail("El usuario no existe");
+        if (user == null) return Result<UserDto>.Fail("El usuario no existe fuap 4");
 
         return Result<UserDto>.Ok(new UserDto()
         {
@@ -72,7 +72,7 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
     public async Task<Result<UserDto>> UpdateUser(int id, string? nombre, string? email, string? pwd)
     {
         var user = await dbContext.Users.FindAsync(id);
-        if (user == null) return Result<UserDto>.Fail("El usuario no existe");
+        if (user == null) return Result<UserDto>.Fail("El usuario no existe fuap 3");
 
         if (!string.IsNullOrWhiteSpace(nombre))
             user.Nombre = nombre;
@@ -105,7 +105,7 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
     public async Task<Result<UserDto>> ChangePassword(int userId, ChangePasswordRequestDto request)
     {
         var user = await dbContext.Users.FindAsync(userId);
-        if (user == null) return Result<UserDto>.Fail("El usuario no existe");
+        if (user == null) return Result<UserDto>.Fail("El usuario no existe fuap 2");
         
         // el usuario es obtenido con el token, asi que eso ya verifica que sea el usuario autenticado
         if (!BCrypt.Net.BCrypt.Verify(request.oldPassword, user.PwdHash))
@@ -128,12 +128,7 @@ public class UserServiceImpl(ComidasDbContext dbContext, IAuthService authServic
 
     public async Task<Result<string>> DeleteUser(int id)
     {
-        var user = await dbContext.Users.FindAsync(id);
-        if (user == null) return Result<string>.Fail("El usuario no existe");
-
-        dbContext.Users.Remove(user);
-        await dbContext.SaveChangesAsync();
-
-        return Result<string>.Ok("Usuario eliminado correctamente");
+        var RowsAffected = await dbContext.Users.Where(u => u.Id == id).ExecuteDeleteAsync();
+        return  Result<string>.Ok("Usuario eliminado correctamente") ;
     }
 }
