@@ -9,7 +9,7 @@ namespace comidas_backend.Services.Impl;
 public class PropuestaServiceImpl(ComidasDbContext dbContext, IFileService fileService) : IPropuestaService
 {
     
-    public async Task<List<ComidaDto>> GetProposals(int userId, string userRole)
+    public async Task<List<PropuestaDto>> GetProposals(int userId, string userRole)
     {
         // doble query para mas performance: primero hacemos select de la comida, y despues solo de la calificacion perteneciente al usuario
         // despues las seteamos en el dto, asi no tenemos que hacer loop a traves de todas las calificaciones
@@ -21,10 +21,11 @@ public class PropuestaServiceImpl(ComidasDbContext dbContext, IFileService fileS
                 Calificacion = comida.Calificacions
                     .Where(c => c.UserId == userId)
                     .Select(c => (int?)c.Cantidad)
-                    .SingleOrDefault()
+                    .SingleOrDefault(),
+                UserName = comida.User.Nombre
                 
             })
-            .Select(result => new ComidaDto()
+            .Select(result => new PropuestaDto()
             {
                 Id = result.Comida.Id,
                 Titulo = result.Comida.Titulo,
@@ -35,7 +36,8 @@ public class PropuestaServiceImpl(ComidasDbContext dbContext, IFileService fileS
                 Confirmada = result.Comida.Confirmada,
                 UsuarioCalifica = result.Calificacion != null,
                 CalificacionUsuario = result.Calificacion,
-                DateCreated = result.Comida.DateCreated
+                DateCreated = result.Comida.DateCreated,
+                Nombre = result.UserName
             })
             .OrderByDescending(comida => comida.DateCreated)
             .ToListAsync();

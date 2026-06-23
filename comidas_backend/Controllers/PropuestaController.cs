@@ -1,5 +1,6 @@
 using System.Security.Claims;
 using comidas_backend.Models.Domain;
+using comidas_backend.Models.Dto.Entity;
 using comidas_backend.Models.Dto.Request;
 using comidas_backend.Services;
 using comidas_backend.Utils;
@@ -16,7 +17,7 @@ public class PropuestaController(IPropuestaService propuestaService, IComidaServ
     // seccion propuestas
     
     [HttpGet]
-    public async Task<ActionResult<List<Comida>>> GetUserProposals()
+    public async Task<ActionResult<List<PropuestaDto>>> GetUserProposals()
     {
         var userId = User.GetUserId();
         var userRole = User.FindFirst(ClaimTypes.Role)!.Value;
