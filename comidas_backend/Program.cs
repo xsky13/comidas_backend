@@ -84,7 +84,8 @@ builder.Services.AddScoped<IAuthService, AuthServiceImpl>();
 builder.Services.AddScoped<IUserService, UserServiceImpl>();
 builder.Services.AddScoped<IComidaService, ComidaServiceImpl>();
 builder.Services.AddScoped<IPropuestaService, PropuestaServiceImpl>();
-builder.Services.AddScoped<IFileService, LocalFileServiceImpl>();
+// builder.Services.AddScoped<IFileService, LocalFileServiceImpl>();
+builder.Services.AddScoped<IFileService, CloudFileServiceImpl>();
 
 builder.Services.AddAuthorization();
 
