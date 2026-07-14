@@ -260,8 +260,13 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         if (comida == null)
             return Result<object>.Fail("La comida no existe");
 
+        var userRole = await dbContext.Users
+            .Where(u => u.Id == userId)
+            .Select(u => u.Rol)
+            .FirstAsync();
+
         // Validar que el usuario sea el propietario de la comida
-        if (comida.UserId != userId)
+        if (userRole != UserRole.Admin && comida.UserId != userId)
             return Result<object>.Fail("No tienes permisos para modificar esta comida");
 
         if (string.IsNullOrEmpty(request.Titulo))
