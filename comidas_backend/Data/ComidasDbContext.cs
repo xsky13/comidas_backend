@@ -9,6 +9,8 @@ public class ComidasDbContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Comida> Comidas { get; set; }
     public DbSet<Calificacion> Calificaciones { get; set; }
+    public DbSet<Voto> Votos { get; set; }
+    public DbSet<Comentario> Comentarios { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,6 +30,25 @@ public class ComidasDbContext : DbContext
             .WithOne(c => c.User)
             .HasForeignKey(c => c.UserId)
             .OnDelete(DeleteBehavior.SetNull);
+        
+        modelBuilder.Entity<User>()
+            .HasMany(u => u.Comentarios)
+            .WithOne(c => c.User)
+            .HasForeignKey(c => c.UserId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<Comida>()
+            .HasMany(c => c.Comentarios)
+            .WithOne(c => c.Comida)
+            .HasForeignKey(c => c.ComidaId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<Comentario>()
+            .HasMany(c => c.ListaVotos)
+            .WithOne(v => v.Comentario)
+            .HasForeignKey(v => v.ComentarioId)
+            .OnDelete(DeleteBehavior.Cascade);
+        
         
         base.OnModelCreating(modelBuilder);
     }

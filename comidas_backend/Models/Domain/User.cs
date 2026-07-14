@@ -15,4 +15,5 @@ public class User
     public UserRole Rol { get; set; }
     public List<Calificacion> Calificacions { get; set; }
     public List<Comida> Comidas { get; set; }
+    public List<Comentario> Comentarios { get; set; }
 }

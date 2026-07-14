@@ -15,4 +15,5 @@ public class Comida
     public List<Calificacion> Calificacions { get; set; }
     public DateTime DateCreated { get; set; }
     public string? PublicId { get; set; } = null;
+    public List<Comentario> Comentarios { get; set; } = [];
 }
