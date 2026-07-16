@@ -53,11 +53,11 @@ public class UserController(IUserService userService): ControllerBase
 
         });
         
-//#if DEBUG
-//        return Ok(new { Token = result.Value });
-//#else
+#if DEBUG
+       return Ok(new { Token = result.Value });
+#else
         return Ok();
-//#endif
+#endif
     }
 
     [Authorize]
