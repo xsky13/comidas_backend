@@ -70,4 +70,20 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
             }
         });
     }
+
+    public async Task<Result<object>> DeleteComment(int comentarioId, int userId)
+    {
+        var comentario = await dbContext.Comentarios.FindAsync(comentarioId);
+        
+        if (comentario == null)
+            return Result<object>.Fail("El comentario no existe.");
+
+        if (comentario.UserId != userId)
+            return Result<object>.Fail("No puede modificar este comentario");
+
+        dbContext.Comentarios.Remove(comentario);
+        await dbContext.SaveChangesAsync();
+
+        return Result<object>.Ok(new { Success = true });
+    }
 }

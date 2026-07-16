@@ -27,4 +27,12 @@ public class CommentController(ICommentService commentService) : ControllerBase
         var result = await commentService.CreateComment(comidaId, userId, request.TextoComentario);
         return result.ToActionResult();
     }
+    
+    [HttpDelete("{comidaId}")]
+    public async Task<ActionResult<object>> DeleteComentario(int comidaId)
+    {
+        var userId = User.GetUserId();
+        var result = await commentService.DeleteComment(comidaId, userId);
+        return result.ToActionResult();
+    }
 }
