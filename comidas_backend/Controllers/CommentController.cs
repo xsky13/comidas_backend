@@ -35,4 +35,20 @@ public class CommentController(ICommentService commentService) : ControllerBase
         var result = await commentService.DeleteComment(comidaId, userId);
         return result.ToActionResult();
     }
+    
+    [HttpPost("{comentarioId}/upvote")]
+    public async Task<ActionResult<object>> Upvote(int comentarioId)
+    {
+        var userId = User.GetUserId();
+        var result = await commentService.UpvoteComment(comentarioId, userId);
+        return result.ToActionResult();
+    }
+    
+    [HttpPost("{comentarioId}/downvote")]
+    public async Task<ActionResult<object>> Downvote(int comentarioId)
+    {
+        var userId = User.GetUserId();
+        var result = await commentService.DownvoteComment(comentarioId, userId);
+        return result.ToActionResult();
+    }
 }

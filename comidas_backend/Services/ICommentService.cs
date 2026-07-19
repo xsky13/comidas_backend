@@ -8,4 +8,6 @@ public interface ICommentService
     public Task<List<ComentarioDto>> GetCommentsByFood(int comidaId);
     public Task<Result<ComentarioDto>> CreateComment(int comidaId, int userId, string textoComentario);
     public Task<Result<object>> DeleteComment(int comentarioId, int userId);
+    public Task<Result<object>> UpvoteComment(int comentarioId, int userId);
+    public Task<Result<object>> DownvoteComment(int comentarioId, int userId);
 }
