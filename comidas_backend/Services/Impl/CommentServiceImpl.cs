@@ -20,7 +20,10 @@ public class CommentServiceImpl(ComidasDbContext dbContext, ILogger logger) : IC
                 Texto = c.Texto,
                 UserId = c.UserId,
                 Votos = c.Votos,
-                UserVoted = c.ListaVotos.Any(v => v.UserId == userId),
+                UserVote = c.ListaVotos
+                    .Where(v => v.UserId == userId)
+                    .Select(v => (int?)v.VotoValue)
+                    .FirstOrDefault() ?? 0,
                 User = c.UserId == null ? new UserDto
                 {
                     Id = 0,
@@ -62,7 +65,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext, ILogger logger) : IC
             Texto = newComentario.Texto,
             UserId = newComentario.UserId,
             Votos = newComentario.Votos,
-            UserVoted = false,
+            UserVote = 0,
             User = new UserDto
             {
                 Id = newComentario.User!.Id,
