@@ -11,14 +11,16 @@ namespace comidas_backend.Controllers;
 public class CommentController(ICommentService commentService) : ControllerBase
 {
     [HttpGet("{comidaId}")]
-    public async Task<ActionResult<List<ComentarioDto>>> GetComentarios(int comidaId)
+    public async Task<ActionResult<List<ComentarioViewDto>>> GetComentarios(int comidaId)
     {
-        var comentarios = await commentService.GetCommentsByFood(comidaId);
+        var userId = User.GetUserId();
+        
+        var comentarios = await commentService.GetCommentsByFood(comidaId, userId);
         return comentarios;
     }
 
     [HttpPost("{comidaId}")]
-    public async Task<ActionResult<ComentarioDto>> CreateComentario(
+    public async Task<ActionResult<ComentarioViewDto>> CreateComentario(
         [FromBody] CreateCommentRequestDto request,
         int comidaId
     )

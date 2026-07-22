@@ -10,3 +10,15 @@ public class ComentarioDto
     public int? UserId { get; set; }
     public UserDto? User { get; set; }
 }
+
+public class ComentarioViewDto
+{
+    public int Id { get; set; }
+    public string Texto { get; set; }
+    public int Votos { get; set; }
+    public bool UserVoted { get; set; }
+    public DateTime Fecha { get; set; }
+    public int ComidaId { get; set; }
+    public int? UserId { get; set; }
+    public UserDto? User { get; set; }
+}

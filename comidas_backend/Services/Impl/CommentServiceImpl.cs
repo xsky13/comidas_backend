@@ -8,11 +8,11 @@ namespace comidas_backend.Services.Impl;
 
 public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
 {
-    public async Task<List<ComentarioDto>> GetCommentsByFood(int comidaId)
+    public async Task<List<ComentarioViewDto>> GetCommentsByFood(int comidaId, int userId)
     {
         var comments = await dbContext.Comentarios
             .Where(c => c.ComidaId == comidaId)
-            .Select(c => new ComentarioDto
+            .Select(c => new ComentarioViewDto
             {
                 Id = c.Id,
                 ComidaId = c.ComidaId,
@@ -20,6 +20,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
                 Texto = c.Texto,
                 UserId = c.UserId,
                 Votos = c.Votos,
+                UserVoted = c.ListaVotos.Any(v => v.UserId == userId),
                 User = c.UserId == null ? new UserDto
                 {
                     Id = 0,
@@ -38,7 +39,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
         return comments;
     }
 
-    public async Task<Result<ComentarioDto>> CreateComment(int comidaId, int userId, string textoComentario)
+    public async Task<Result<ComentarioViewDto>> CreateComment(int comidaId, int userId, string textoComentario)
     {
         var newComentario = new Comentario
         {
@@ -53,7 +54,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
         await dbContext.SaveChangesAsync();
         await dbContext.Entry(newComentario).Reference(c => c.User).LoadAsync();
         
-        return Result<ComentarioDto>.Ok(new ComentarioDto
+        return Result<ComentarioViewDto>.Ok(new ComentarioViewDto
         {
             Id = newComentario.Id,
             ComidaId = newComentario.ComidaId,
@@ -61,6 +62,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
             Texto = newComentario.Texto,
             UserId = newComentario.UserId,
             Votos = newComentario.Votos,
+            UserVoted = false,
             User = new UserDto
             {
                 Id = newComentario.User!.Id,
@@ -112,7 +114,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
     public async Task<Result<object>> DownvoteComment(int comentarioId, int userId)
     {
         var userVoted = await dbContext.Comentarios.AnyAsync(c => c.Id == comentarioId && c.UserId == userId);
-        if (!userVoted)
+        if (userVoted)
             return Result<object>.Fail("No voto en este comentario");
 
         await dbContext.Comentarios
