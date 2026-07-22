@@ -241,8 +241,21 @@ public class ComidaServiceImpl(ComidasDbContext dbContext, IFileService fileServ
         return Result<object>.Ok(new { Success = true });
     }
 
-    public async Task<Result<object>> DeleteComida(int comidaId, int userId)
+    public async Task<Result<object>> DeleteComida(int comidaId, int userId, string userRole)
     {
+        // user is admin
+        if (Enum.TryParse<UserRole>(userRole, out var parsedRole) && parsedRole == UserRole.Admin)
+        {
+            var affectedRows = await dbContext.Comidas
+                .Where(c => c.Id == comidaId)
+                .ExecuteDeleteAsync();
+            
+            if (affectedRows == 0)
+                return Result<object>.Fail("La comida no existe.");
+
+            return Result<object>.Ok(new { Success = true });
+        }
+        
         var rowsAffected = await dbContext.Comidas
             .Where(c => c.Id == comidaId && c.UserId == userId)
             .ExecuteDeleteAsync();

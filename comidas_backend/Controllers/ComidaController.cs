@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using comidas_backend.Models.Domain;
 using comidas_backend.Models.Dto.Request;
 using comidas_backend.Services;
@@ -60,7 +61,10 @@ public class ComidaController(IComidaService comidaService) : ControllerBase
     public async Task<ActionResult<object>> DeleteFood(int id)
     {
         var userId = User.GetUserId();
-        var response = await comidaService.DeleteComida(id, userId);
+        var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+        if (userRole == null) return BadRequest("No hay rol de usuario.");
+        
+        var response = await comidaService.DeleteComida(id, userId, userRole);
         return response.ToActionResult();
     }
 

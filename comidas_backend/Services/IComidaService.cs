@@ -14,6 +14,6 @@ public interface IComidaService
     Task<Result<object>> RateComida(RateComidaRequestDto request, int comidaId, int userId);
     Task<Result<object>> UnrateComida(int comidaId, int userId);
     Task<Result<object>> DeactivateComida(int comidaId, int userId);
-    Task<Result<object>> DeleteComida(int comidaId, int userId);
+    Task<Result<object>> DeleteComida(int comidaId, int userId, string userRole);
     Task<Result<object>> UpdateComida(UpdateComidaRequestDto request, int comidaId, int userId);
 }
