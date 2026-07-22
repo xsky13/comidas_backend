@@ -42,7 +42,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     public async Task<ActionResult<object>> Upvote(int comentarioId)
     {
         var userId = User.GetUserId();
-        var result = await commentService.UpvoteComment(comentarioId, userId);
+        var result = await commentService.VoteComment(comentarioId, userId, 1);
         return result.ToActionResult();
     }
     
@@ -50,7 +50,7 @@ public class CommentController(ICommentService commentService) : ControllerBase
     public async Task<ActionResult<object>> Downvote(int comentarioId)
     {
         var userId = User.GetUserId();
-        var result = await commentService.DownvoteComment(comentarioId, userId);
+        var result = await commentService.VoteComment(comentarioId, userId, -1);
         return result.ToActionResult();
     }
 }

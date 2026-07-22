@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace comidas_backend.Services.Impl;
 
-public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
+public class CommentServiceImpl(ComidasDbContext dbContext, ILogger logger) : ICommentService
 {
     public async Task<List<ComentarioViewDto>> GetCommentsByFood(int comidaId, int userId)
     {
@@ -89,42 +89,60 @@ public class CommentServiceImpl(ComidasDbContext dbContext) : ICommentService
         return Result<object>.Ok(new { Success = true });
     }
 
-    public async Task<Result<object>> UpvoteComment(int comentarioId, int userId)
+    public async Task<Result<object>> VoteComment(int comentarioId, int userId, int voteValue)
     {
-        var userVoted = await dbContext.Comentarios.AnyAsync(c => c.Id == comentarioId && c.UserId == userId);
-        if (userVoted)
-            return Result<object>.Fail("Ya voto en este comentario");
+        // voteValue is 1 or -1
+        var userVote = await dbContext.Votos
+            .FirstOrDefaultAsync(v => v.ComentarioId == comentarioId && v.UserId == userId);
 
-        await dbContext.Comentarios
-            .Where(c => c.Id == comentarioId)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.Votos, c => c.Votos + 1));
-
-        var vote = new Voto
+        int delta;
+        if (userVote != null && userVote.VotoValue == voteValue)
         {
-            VotoValue = 1,
-            UserId = userId,
-            ComentarioId = comentarioId,
-        };
+            delta = -voteValue; // undo the vote
+        }
+        else if (userVote != null)
+        {
+            delta = voteValue * 2; // flip from one side to the other
+        }
+        else
+        {
+            delta = voteValue; // new vote
+        }
 
-        dbContext.Votos.Add(vote);
-        await dbContext.SaveChangesAsync();
+        await using var transaction = await dbContext.Database.BeginTransactionAsync();
+        var rows = await dbContext.Comentarios.Where(c => c.Id == comentarioId)
+            .ExecuteUpdateAsync(s => s.SetProperty(c => c.Votos, c => c.Votos + delta));
+        if (rows == 0)
+        {
+            await transaction.RollbackAsync();
+            return Result<object>.Fail("Comentario no existe.");
+        }
+
+        if (userVote != null && userVote.VotoValue == voteValue)
+        {
+            await dbContext.Votos.Where(v => v.Id == userVote.Id).ExecuteDeleteAsync();
+        }
+        else if (userVote != null)
+        {
+            await dbContext.Votos.Where(v => v.Id == userVote.Id)
+                .ExecuteUpdateAsync(s => s.SetProperty(v => v.VotoValue, voteValue));
+        }  else
+        {
+            try
+            {
+                dbContext.Votos.Add(new Voto { VotoValue = voteValue, UserId = userId, ComentarioId = comentarioId });
+                await dbContext.SaveChangesAsync();
+            }
+            catch (DbUpdateException ex)
+            {
+                await transaction.RollbackAsync();
+                logger.LogWarning(ex, "Vote update failed for comentario {ComentarioId}, user {UserId}", comentarioId, userId);
+                return Result<object>.Fail("Ocurrio un error.");
+            }
+        }
+
+        await transaction.CommitAsync();
         return Result<object>.Ok(new { Success = true });
     }
-
-    public async Task<Result<object>> DownvoteComment(int comentarioId, int userId)
-    {
-        var userVoted = await dbContext.Comentarios.AnyAsync(c => c.Id == comentarioId && c.UserId == userId);
-        if (userVoted)
-            return Result<object>.Fail("No voto en este comentario");
-
-        await dbContext.Comentarios
-            .Where(c => c.Id == comentarioId)
-            .ExecuteUpdateAsync(setters => setters.SetProperty(c => c.Votos, c => c.Votos - 1));
-        
-        await dbContext.Votos
-            .Where(v => v.ComentarioId == comentarioId && v.UserId == userId)
-            .ExecuteDeleteAsync();
-        
-        return Result<object>.Ok(new { Success = true });
-    }
+    
 }
