@@ -13,6 +13,9 @@ using Microsoft.OpenApi;
 Env.Load();
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Logging.ClearProviders().AddConsole();
+
+
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(

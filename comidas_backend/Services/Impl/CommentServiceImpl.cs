@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace comidas_backend.Services.Impl;
 
-public class CommentServiceImpl(ComidasDbContext dbContext, ILogger logger) : ICommentService
+public class CommentServiceImpl(ComidasDbContext dbContext, ILogger<CommentServiceImpl> logger) : ICommentService
 {
     public async Task<List<ComentarioViewDto>> GetCommentsByFood(int comidaId, int userId)
     {
@@ -38,6 +38,7 @@ public class CommentServiceImpl(ComidasDbContext dbContext, ILogger logger) : IC
                     Rol = c.User.Rol
                 }
             })
+            .OrderByDescending(c => c.Votos)
             .ToListAsync();
         return comments;
     }
