@@ -176,9 +176,10 @@ namespace comidas_backend.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ComentarioId");
-
                     b.HasIndex("UserId");
+
+                    b.HasIndex("ComentarioId", "UserId")
+                        .IsUnique();
 
                     b.ToTable("Votos");
                 });

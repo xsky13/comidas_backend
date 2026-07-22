@@ -18,6 +18,11 @@ public class ComidasDbContext : DbContext
         modelBuilder.Entity<Calificacion>()
             .HasIndex(c => new { c.ComidaId, c.UserId })
             .IsUnique();
+        
+        // relacion de voto con comentario id y usuario id
+        modelBuilder.Entity<Voto>()
+            .HasIndex(v => new { v.ComentarioId, v.UserId })
+            .IsUnique();
 
         modelBuilder.Entity<User>()
             .HasMany(u => u.Calificacions)
