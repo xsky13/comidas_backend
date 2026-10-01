@@ -3,6 +3,6 @@ obj/
 .env
 .idea/
 UploadAreaTemp/*
-
+.vs/
 */bin/
 */obj/
