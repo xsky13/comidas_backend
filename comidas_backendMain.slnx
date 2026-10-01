@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="comidas_backend.IntegrationTests/comidas_backend.IntegrationTests.csproj" />
+  <Project Path="comidas_backend.UnitTests/comidas_backend.UnitTests.csproj" />
+  <Project Path="comidas_backend/comidas_backend.csproj" />
+</Solution>
