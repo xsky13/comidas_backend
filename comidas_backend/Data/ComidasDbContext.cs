@@ -34,6 +34,9 @@ public class ComidasDbContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? throw new Exception("Conexion a db no existe!"));
+        if (!optionsBuilder.IsConfigured)
+        {
+            optionsBuilder.UseNpgsql(Environment.GetEnvironmentVariable("CONNECTION_STRING") ?? throw new Exception("Conexion a db no existe!"));
+        }
     }
 }
